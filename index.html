@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashok AI Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6a11cb; /* Deeper purple */
+            --primary-dark: #4d0b9a; /* Darker purple */
+            --background: #e0f2f7; /* Light blue-green background */
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #d1e8f0; /* Lighter border for light mode */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --user-bubble: #93c5fd; /* Soft blue for user */
+            --bot-bubble: #e2e8f0; /* Light gray-blue for bot */
+            --input: #ffffff;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Softer, larger shadow */
+            --header-gradient-start: #6a11cb;
+            --header-gradient-end: #2575fc;
+            --send-button-gradient-start: #2575fc;
+            --send-button-gradient-end: #6a11cb;
+        }
+
+        .dark-mode {
+            --primary: #8b5cf6; /* Lighter purple for dark mode */
+            --primary-dark: #7c3aed;
+            --background: #1a202c; /* Dark charcoal background */
+            --card: #2d3748; /* Darker card background */
+            --text: #e2e8f0; /* Light text */
+            --text-secondary: #a0aec0;
+            --border: #4a5568; /* Darker border */
+            --user-bubble: #4c51bf; /* Deeper blue for user */
+            --bot-bubble: #4a5568; /* Dark gray-blue for bot */
+            --input: #4a5568;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* More pronounced shadow in dark mode */
+            --header-gradient-start: #1a202c;
+            --header-gradient-end: #2d3748;
+            --send-button-gradient-start: #4c51bf;
+            --send-button-gradient-end: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Changed to Inter for modern look */
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Main Chat Container */
+        .chat-container {
+            flex: 1;
+            max-width: 800px;
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-radius: 20px; /* More rounded */
+            box-shadow: var(--shadow);
+            background-color: var(--card);
+            overflow: hidden; /* Ensures rounded corners clip content */
+        }
+
+        .chat-header {
+            padding: 18px 28px; /* Slightly more padding */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center horizontally */
+            background: linear-gradient(90deg, var(--header-gradient-start), var(--header-gradient-end)); /* Gradient header */
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .chat-header .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            /* Removed margin-bottom as ashok-ai-label is now inside left-header-content */
+        }
+
+        /* New wrapper for logo, title, and ashok-ai-label */
+        .chat-header .left-header-content {
+            display: flex; /* Changed to flex to align image and text block */
+            align-items: center; /* Vertically center image with text block */
+            gap: 10px; /* Space between logo and text block */
+        }
+
+        /* This div is no longer needed to group logo and main title */
+        /* It is now just the image and the title-and-label div */
+        /* .chat-header .logo-and-title { } */
+
+        .chat-header .left-header-content img { /* This rule now applies directly to img */
+            width: 40px; /* Slightly larger logo */
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.7); /* White border around logo */
+        }
+
+        .chat-header .title-and-label { /* New class for the stacked title and label */
+            display: flex;
+            flex-direction: column; /* Stack title and label vertically */
+            align-items: flex-start; /* Align text to the left within its column */
+            gap: 2px; /* Small gap between title and label */
+        }
+
+        .chat-header .main-title {
+            font-size: 22px; /* Larger font */
+            font-weight: 800; /* Bolder */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-header .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-header .ashok-ai-label {
+            font-size: 18px; /* Size for "Ashok AI" text */
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .chat-header .header-btn {
+            background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 40px; /* Larger buttons */
+            height: 40px;
+            border-radius: 10px; /* More rounded */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header .header-btn:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 28px; /* More padding */
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px; /* Slightly less gap between messages */
+            background-color: var(--card); /* Messages background matches card */
+        }
+
+        .message {
+            display: flex;
+            gap: 12px; /* Less gap between avatar and bubble */
+            max-width: 85%; /* Slightly narrower messages */
+            align-self: flex-start;
+            animation: fadeIn 0.3s ease-out; /* Fade in animation */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .avatar {
+            width: 36px; /* Slightly larger avatar */
+            height: 36px;
+            border-radius: 8px; /* More rounded */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px; /* Larger font */
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .user .avatar {
+            background-color: var(--primary);
+        }
+
+        .assistant .avatar {
+            background-color: var(--text-secondary);
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Less gap */
+        }
+
+        .bubble {
+            padding: 16px 20px; /* More horizontal padding */
+            border-radius: 18px; /* More rounded bubbles */
+            line-height: 1.6;
+            box-shadow: var(--shadow);
+            max-width: 680px;
+            background-color: var(--bot-bubble);
+        }
+        .message.user .bubble {
+            background-color: var(--user-bubble);
+            color: var(--text); /* User text can be dark on light bubble */
+            border-bottom-right-radius: 6px; /* Pointed corner */
+        }
+
+        .message.assistant .bubble {
+            color: var(--text);
+            border-bottom-left-radius: 6px; /* Pointed corner */
+        }
+
+        .message-info {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .timestamp {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: var(--primary);
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 18px 28px; /* More padding */
+            border-top: 1px solid var(--border);
+            background-color: var(--card);
+            border-bottom-left-radius: 20px; /* Match container */
+            border-bottom-right-radius: 20px; /* Match container */
+            position: relative; /* For User ID display */
+        }
+
+        .input-area {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px; /* Slightly more space */
+        }
+
+        .input-box {
+            flex-grow: 1;
+            padding: 16px 20px; /* More padding */
+            border: 1px solid var(--border);
+            border-radius: 18px; /* More rounded */
+            background-color: var(--input);
+            color: var(--text);
+            font-size: 16px;
+            resize: none;
+            min-height: 56px;
+            max-height: 200px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Inner shadow */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            overflow-y: auto;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.3); /* Focus ring */
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .input-btn {
+            background: var(--bot-bubble); /* Matches bot bubble for consistency */
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px; /* Larger icons */
+            width: 48px; /* Larger buttons */
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%; /* Circular */
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-btn:hover {
+            color: var(--primary);
+            background-color: var(--border);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, var(--send-button-gradient-start), var(--send-button-gradient-end)); /* Gradient send button */
+            color: white;
+            border-radius: 50%;
+            font-size: 24px; /* Even larger icon */
+            width: 52px; /* Larger send button */
+            height: 52px;
+            line-height: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(45deg, var(--send-button-gradient-end), var(--send-button-gradient-start)); /* Reverse gradient on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .send-btn:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* User ID Display */
+        .user-id-display {
+            display: none; /* Hidden as requested */
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 0; /* No padding on mobile body */
+            }
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0; /* Full screen on mobile */
+                box-shadow: none;
+            }
+            
+            .chat-header {
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            
+            .chat-header .main-title {
+                font-size: 18px;
+            }
+
+            .chat-messages {
+                padding: 20px;
+                gap: 15px;
+            }
+            
+            .message {
+                max-width: 100%;
+            }
+            
+            .input-container {
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+
+            .input-box {
+                padding: 12px 16px;
+                min-height: 50px;
+                font-size: 15px;
+            }
+            .input-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            .send-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            .user-id-display {
+                bottom: 2px;
+                right: 20px;
+                font-size: 10px;
+            }
+
+            /* Mobile Layout Preference (when enabled) */
+            .chat-container.mobile-optimized-layout {
+                max-width: 100%;
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .chat-container.mobile-optimized-layout .chat-header {
+                padding: 12px 16px;
+            }
+            .chat-container.mobile-optimized-layout .chat-messages {
+                padding: 12px;
+                gap: 16px;
+            }
+            .chat-container.mobile-optimized-layout .message .bubble {
+                padding: 12px;
+                font-size: 15px;
+            }
+            .chat-container.mobile-optimized-layout .input-container {
+                padding: 8px 12px;
+            }
+            .chat-container.mobile-optimized-layout .input-box {
+                padding: 12px;
+                min-height: 48px;
+                font-size: 15px;
+            }
+            .chat-container.mobile-optimized-layout .input-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .chat-container.mobile-optimized-layout .send-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            /* Mobile Layout Size Specific Styles (applied on top of mobile-optimized-layout) */
+
+            /* Small Layout */
+            .chat-container.mobile-optimized-layout.mobile-layout-small .chat-messages {
+                padding: 8px;
+                gap: 12px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-small .message .bubble {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-small .input-container {
+                padding: 6px 10px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-small .input-box {
+                padding: 10px;
+                min-height: 40px;
+                font-size: 14px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-small .input-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-small .send-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            /* Medium Layout (Default for mobile-optimized-layout if no size specified) */
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .chat-messages {
+                padding: 12px;
+                gap: 16px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .message .bubble {
+                padding: 12px;
+                font-size: 15px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .input-container {
+                padding: 8px 12px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .input-box {
+                padding: 12px;
+                min-height: 48px;
+                font-size: 15px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .input-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-medium .send-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            /* Large Layout */
+            .chat-container.mobile-optimized-layout.mobile-layout-large .chat-messages {
+                padding: 16px;
+                gap: 20px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-large .message .bubble {
+                padding: 14px;
+                font-size: 16px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-large .input-container {
+                padding: 10px 14px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-large .input-box {
+                padding: 14px;
+                min-height: 52px;
+                font-size: 16px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-large .input-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            .chat-container.mobile-optimized-layout.mobile-layout-large .send-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+        }
+
+        /* Code Block Styling */
+        pre {
+            background-color: var(--card);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 12px 0;
+            border: 1px solid var(--border);
+        }
+
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 14px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--card);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Settings Modal/Panel Styles */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .settings-panel {
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            width: 95%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: popIn 0.3s forwards ease-out;
+        }
+        @keyframes popIn {
+            to { transform: scale(1); opacity: 1; }
+        }
+        .dark-mode .settings-panel {
+            background-color: var(--card);
+            box-shadow: var(--shadow);
+        }
+        .settings-panel h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .dark-mode .settings-panel h2 {
+            color: var(--primary);
+        }
+        .setting-section {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: var(--background);
+        }
+        .dark-mode .setting-section {
+            background-color: var(--background);
+            border-color: var(--border);
+        }
+        .setting-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .dark-mode .setting-section h3 {
+            color: var(--text);
+            border-bottom-color: var(--border);
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-item div {
+            flex-grow: 1;
+            margin-right: 1rem;
+        }
+        .setting-item label {
+            font-weight: 500;
+            color: var(--text);
+            font-size: 16px;
+        }
+        .dark-mode .setting-item label {
+            color: var(--text);
+        }
+        .setting-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .dark-mode .setting-description {
+            color: var(--text-secondary);
+        }
+        .settings-action-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            flex-shrink: 0;
+        }
+        .settings-action-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .settings-action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .close-button {
+            background-color: var(--error);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-end;
+            margin-top: 1rem;
+        }
+        .close-button:hover {
+            background-color: #dc2626;
+        }
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--success);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        /* Dropdown styles */
+        .select-dropdown {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--input);
+            color: var(--text);
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            width: 100%;
+            max-width: 150px; /* Limit width for desktop */
+        }
+        .dark-mode .select-dropdown {
+            background-color: var(--input);
+            border-color: var(--border);
+            color: var(--text);
+        }
+        .select-dropdown:focus {
+            border-color: var(--primary);
+        }
+
+        /* Image in message bubble */
+        .message-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Class to hide the native file input visually */
+        .hidden-file-input {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Main Chat Container -->
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header" id="chat-header">
+            <div class="top-row">
+                <div class="left-header-content"> <!-- New wrapper for logo, title, and ashok-ai-label -->
+                    <img src="https://crictoday.com/wp-content/uploads/2024/05/skysports-virat-kohli-odi-cricket_6363815.jpg" alt="Ashok AI">
+                    <div class="title-and-label">
+                        <span class="main-title">Ashok AI Chatbot</span>
+                        <span class="ashok-ai-label">Ashok AI</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="header-btn" id="dark-mode-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="header-btn" id="main-settings-button">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="message assistant" id="central-question">
+                <div class="avatar">AI</div>
+                <div class="message-content">
+                    <div class="bubble">
+                        <p>Hello! I'm Ashok AI, your intelligent assistant. How can I help you today?</p>
+                    </div>
+                    <div class="message-info">
+                        <span class="timestamp"></span>
+                        <div class="message-actions">
+                            <button class="action-btn copy-btn"><i class="fas fa-copy"></i></button>
+                            <button class="action-btn like-btn"><i class="fas fa-thumbs-up"></i></button>
+                            <button class="action-btn dislike-btn"><i class="fas fa-thumbs-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Chat messages will be dynamically added here -->
+        </div>
+        
+        <div class="loading-indicator" id="loading-indicator" style="display: none;">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <span>Ashok AI is thinking...</span>
+        </div>
+        
+        <div class="input-container">
+            <div class="input-area">
+                <button class="input-btn" id="voice-input-button">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="input-btn" id="attach-button">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <!-- Added hidden-file-input class to hide the native file input -->
+                <input type="file" id="image-upload-input" accept="image/*" class="hidden-file-input">
+                <textarea 
+                    class="input-box" 
+                    id="user-input" 
+                    placeholder="Type your message..." 
+                    rows="1"
+                ></textarea>
+                <button class="input-btn" id="clear-input-button" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="input-btn send-btn" id="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="user-id-display" id="user-id-display"></div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal" style="display: none;">
+        <div id="settings-panel" class="settings-panel">
+            <h2>Chatbot Settings</h2>
+
+            <div class="setting-section">
+                <h3>General Chat</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="summarize-chat-setting">Summarize Chat</label>
+                        <p class="setting-description">Generate a summary of the current conversation.</p>
+                    </div>
+                    <button class="settings-action-button" id="summarize-chat-setting">Summarize</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="elaborate-setting">Elaborate on Last Bot Message</label>
+                        <p class="setting-description">Get more details on the AI's last response.</p>
+                    </div>
+                    <button class="settings-action-button" id="elaborate-setting">Elaborate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="suggest-topics-setting">Suggest Topics</label>
+                        <p class="setting-description">Get suggestions for follow-up questions or new topics.</p>
+                    </div>
+                    <button class="settings-action-button" id="suggest-topics-setting">Suggest</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="create-image-setting">Create Image Mode</label>
+                        <p class="setting-description">Switch to image generation mode. Your next message will be a prompt for an image.</p>
+                    </div>
+                    <button class="settings-action-button" id="create-image-setting">Activate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="summarize-text-setting">✨ Summarize Text</label>
+                        <p class="setting-description">Get a summary of any text you provide.</p>
+                    </div>
+                    <button class="settings-action-button" id="summarize-text-setting">Summarize</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="creative-writing-prompt-setting">✨ Creative Writing Prompt</label>
+                        <p class="setting-description">Generate a random creative writing prompt.</p>
+                    </div>
+                    <button class="settings-action-button" id="creative-writing-prompt-setting">Generate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="recipe-generator-setting">✨ Recipe Generator</label>
+                        <p class="setting-description">Get a recipe based on your ingredients.</p>
+                    </div>
+                    <button class="settings-action-button" id="recipe-generator-setting">Generate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="sentiment-analysis-setting">✨ Sentiment Analysis</label>
+                        <p class="setting-description">Analyze the emotional tone of a given text.</p>
+                    </div>
+                    <button class="settings-action-button" id="sentiment-analysis-setting">Analyze</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="translate-text-setting">✨ Language Translator</label>
+                        <p class="setting-description">Translate text to another language.</p>
+                    </div>
+                    <button class="settings-action-button" id="translate-text-setting">Translate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="grammar-check-setting">✨ Grammar & Spelling Corrector</label>
+                        <p class="setting-description">Correct grammar and spelling in text.</p>
+                    </div>
+                    <button class="settings-action-button" id="grammar-check-setting">Correct</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="calculator-tool-setting">🔢 Calculator Tool</label>
+                        <p class="setting-description">Activate a simple calculator mode for math problems.</p>
+                    </div>
+                    <button class="settings-action-button" id="calculator-tool-setting">Activate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="fact-checker-tool-setting">🔎 Fact Checker Tool</label>
+                        <p class="setting-description">Activate a basic fact-checking mode.</p>
+                    </div>
+                    <button class="settings-action-button" id="fact-checker-tool-setting">Activate</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="code-explainer-tool-setting">💻 Code Explainer Tool</label>
+                        <p class="setting-description">Activate a mode to explain code snippets.</p>
+                    </div>
+                    <button class="settings-action-button" id="code-explainer-tool-setting">Activate</button>
+                </div>
+            </div>
+
+            <div class="setting-section">
+                <h3>Personalization</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="chatbot-persona-setting">Chatbot Persona</label>
+                        <p class="setting-description">Choose the AI's conversational style.</p>
+                    </div>
+                    <select id="chatbot-persona-setting" class="select-dropdown">
+                        <option value="default">Default</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="formal">Formal</option>
+                        <option value="creative">Creative</option>
+                        <option value="technical">Technical</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="response-length-setting">Response Length</label>
+                        <p class="setting-description">Set the desired verbosity of AI responses.</p>
+                    </div>
+                    <select id="response-length-setting" class="select-dropdown">
+                        <option value="standard">Standard</option>
+                        <option value="concise">Concise</option>
+                        <option value="detailed">Detailed</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="response-tone-setting">Response Tone</label>
+                        <p class="setting-description">Influence the emotional tone of AI responses.</p>
+                    </div>
+                    <select id="response-tone-setting" class="select-dropdown">
+                        <option value="neutral">Neutral</option>
+                        <option value="cheerful">Cheerful</option>
+                        <option value="serious">Serious</option>
+                        <option value="empathetic">Empathetic</p>
+                        <option value="humorous">Humorous</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-section">
+                <h3>Notifications</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="sound-effects-toggle">Sound Effects</label>
+                        <p class="setting-description">Enable or disable notification sounds.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="sound-effects-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="desktop-notifications-toggle">Desktop Notifications</label>
+                        <p class="setting-description">Receive alerts even when the browser is minimized.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="desktop-notifications-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="text-to-speech-toggle">Text-to-Speech Responses</label>
+                        <p class="setting-description">Have the AI read its responses aloud.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="text-to-speech-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-section">
+                <h3>Accessibility</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="font-size-setting">Font Size</label>
+                        <p class="setting-description">Adjust the text size for better readability.</p>
+                    </div>
+                    <select id="font-size-setting" class="select-dropdown">
+                        <option value="medium">Medium</option>
+                        <option value="small">Small</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="high-contrast-mode-toggle">High Contrast Mode</label>
+                        <p class="setting-description">Improve text visibility with higher contrast colors.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="high-contrast-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="mobile-layout-preference-toggle">Mobile Layout Preference</label>
+                        <p class="setting-description">Optimize the chat interface for smaller mobile screens with a more compact layout.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="mobile-layout-preference-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="mobile-layout-size-setting">Mobile Layout Size</label>
+                        <p class="setting-description">Adjust the overall size of elements in mobile layout.</p>
+                    </div>
+                    <select id="mobile-layout-size-setting" class="select-dropdown">
+                        <option value="medium">Medium</option>
+                        <option value="small">Small</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="auto-scroll-toggle">Auto-Scroll to Latest Message</label>
+                        <p class="setting-description">Automatically scroll to the bottom of the chat on new messages.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="auto-scroll-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="message-timestamp-toggle">Show Message Timestamps</label>
+                        <p class="setting-description">Display the time each message was sent.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="message-timestamp-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-section">
+                <h3>Data Management</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="export-chat-history-setting">Export Chat History</label>
+                        <p class="setting-description">Download your conversation as a text file.</p>
+                    </div>
+                    <button class="settings-action-button" id="export-chat-history-setting">Export</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="import-chat-history-setting">Import Chat History</label>
+                        <p class="setting-description">Upload a previous conversation to continue.</p>
+                    </div>
+                    <input type="file" id="import-chat-history-input" accept=".txt" class="hidden">
+                    <button class="settings-action-button" id="import-chat-history-setting">Import</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="reset-all-settings-button">Reset All Settings</label>
+                        <p class="setting-description">Reset all chatbot settings to their default values.</p>
+                    </div>
+                    <button class="settings-action-button" style="background-color: var(--error); hover:background-color: #dc2626;" id="reset-all-settings-button">Reset Settings</button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="clear-chat-setting">Clear All Chat Messages</label>
+                        <p class="setting-description">Erase all messages from the chat history.</p>
+                    </div>
+                    <button class="settings-action-button" style="background-color: var(--error); hover:background-color: #dc2626;" id="clear-chat-setting">Clear Chat</button>
+                </div>
+            </div>
+
+            <div class="setting-section">
+                <h3>Security & Privacy</h3>
+                <div class="setting-item">
+                    <div>
+                        <label for="profanity-filter-setting">Profanity Filter</label>
+                        <p class="setting-description">Enable to filter out offensive language from bot responses.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="profanity-filter-setting">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="data-privacy-mode-setting">Data Privacy Mode</label>
+                        <p class="setting-description">Minimize storage of conversational data. (Note: May affect context persistence).</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="data-privacy-mode-setting">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <label for="unsafe-content-warning-setting">Unsafe Content Warning</label>
+                        <p class="setting-description">Show a warning if the AI detects potentially unsafe or sensitive content.</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="unsafe-content-warning-setting" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="close-settings" class="close-button">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const chatContainer = document.getElementById('chat-container');
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const uploadBtn = document.getElementById('attach-button'); 
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const centralQuestion = document.getElementById('central-question');
+        const userIdDisplay = document.getElementById('user-id-display'); // Added User ID display element
+
+        // Settings Modal Elements
+        const mainSettingsButton = document.getElementById('main-settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const settingsPanel = document.getElementById('settings-panel');
+        const closeSettingsButton = document.getElementById('close-settings');
+
+        // Settings Toggles and Dropdowns
+        const clearChatSettingButton = document.getElementById('clear-chat-setting');
+        const summarizeChatSettingButton = document.getElementById('summarize-chat-setting');
+        const elaborateSettingButton = document.getElementById('elaborate-setting');
+        const suggestTopicsSettingButton = document.getElementById('suggest-topics-setting');
+        const createImageSettingButton = document.getElementById('create-image-setting');
+        const summarizeTextSettingButton = document.getElementById('summarize-text-setting');
+        const creativeWritingPromptSettingButton = document.getElementById('creative-writing-prompt-setting');
+        const recipeGeneratorSettingButton = document.getElementById('recipe-generator-setting');
+        const sentimentAnalysisSettingButton = document.getElementById('sentiment-analysis-setting');
+        const translateTextSettingButton = document.getElementById('translate-text-setting');
+        const grammarCheckSettingButton = document.getElementById('grammar-check-setting');
+        const calculatorToolSettingButton = document.getElementById('calculator-tool-setting');
+        const factCheckerToolSettingButton = document.getElementById('fact-checker-tool-setting');
+        const codeExplainerToolSettingButton = document.getElementById('code-explainer-tool-setting');
+        const chatbotPersonaSetting = document.getElementById('chatbot-persona-setting');
+        const responseLengthSetting = document.getElementById('response-length-setting');
+        const responseToneSetting = document.getElementById('response-tone-setting');
+        const soundEffectsToggle = document.getElementById('sound-effects-toggle');
+        const desktopNotificationsToggle = document.getElementById('desktop-notifications-toggle');
+        const textToSpeechToggle = document.getElementById('text-to-speech-toggle');
+        const fontSizeSetting = document.getElementById('font-size-setting');
+        const highContrastModeToggle = document.getElementById('high-contrast-mode-toggle');
+        const mobileLayoutPreferenceToggle = document.getElementById('mobile-layout-preference-toggle');
+        const mobileLayoutSizeSetting = document.getElementById('mobile-layout-size-setting');
+        const autoScrollToggle = document.getElementById('auto-scroll-toggle');
+        const messageTimestampToggle = document.getElementById('message-timestamp-toggle');
+        const exportChatHistorySetting = document.getElementById('export-chat-history-setting');
+        const importChatHistorySetting = document.getElementById('import-chat-history-setting');
+        const importChatHistoryInput = document.getElementById('import-chat-history-input');
+        const resetAllSettingsButton = document.getElementById('reset-all-settings-button');
+        const profanityFilterToggleSetting = document.getElementById('profanity-filter-setting');
+        const dataPrivacyModeToggleSetting = document.getElementById('data-privacy-mode-setting');
+        const unsafeContentWarningToggleSetting = document.getElementById('unsafe-content-warning-setting');
+
+        // New input action buttons
+        const voiceInputButton = document.getElementById('voice-input-button');
+        const imageUploadInput = document.getElementById('image-upload-input'); 
+        const clearInputButton = document.getElementById('clear-input-button');
+
+        // Global State Variables
+        let chatHistory = [];
+        let isDarkMode = false;
+        let isImageCreationMode = false;
+        let isCalculatorMode = false;
+        let isFactCheckerMode = false;
+        let isCodeExplainerMode = false;
+        let recognition; // SpeechRecognition object
+        let isListening = false;
+        let pendingImageBase64 = null; 
+        let pendingImageMimeType = null; 
+
+        // Consolidated Settings State (loaded from localStorage or defaults)
+        let appSettings = JSON.parse(localStorage.getItem('ashokAiSettings')) || {
+            profanityFilter: false,
+            dataPrivacyMode: false,
+            unsafeContentWarning: true,
+            chatbotPersona: 'default',
+            responseLength: 'standard',
+            responseTone: 'neutral',
+            soundEffects: false,
+            desktopNotifications: false,
+            textToSpeech: false,
+            fontSize: 'medium',
+            highContrastMode: false,
+            mobileLayoutPreference: false,
+            mobileLayoutSize: 'medium',
+            autoScroll: true,
+            messageTimestamp: false,
+            currentApiKey: "AIzaSyCWIAQYeFPhWzfN4jMY4O07CkX3ML5Gj7M"
+        };
+
+        // User ID persistence (No longer displayed, but kept for potential internal use)
+        let currentUserId = "ashokrajjj"; // Set user ID to "ashokrajjj" as requested
+
+        // Define specific Q&A about Ashok Kumar Ray
+        const ashokInfo = {
+            "name": "Ashok Kumar Ray",
+            "address": "Sarlahi, Nepal",
+            "college": "Himalayan Whitehouse International College, Tinkune, Kathmandu",
+            "college_link": "https://whitehouse.edu.np/",
+            "stream": "Computer Science",
+            "creation_date": "July 2025"
+        };
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            clearInputButton.style.display = this.value.length > 0 ? 'flex' : 'none';
+        });
+
+        /**
+         * Saves current app settings to localStorage.
+         */
+        function saveSettings() {
+            localStorage.setItem('ashokAiSettings', JSON.stringify(appSettings));
+            showToast('Settings saved!', 'success');
+        }
+
+        /**
+         * Displays a temporary toast notification.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success', 'error', 'warning', or 'info'.
+         * @param {number} duration - Duration in milliseconds (default: 3000).
+         */
+        function showToast(message, type = 'info', duration = 3000) {
+            toastMessage.textContent = message;
+            toast.className = `toast show ${type}`;
+            
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, duration);
+        }
+
+        /**
+         * Converts basic Markdown to HTML for display.
+         * Supports: **bold**, *italic*, `code`, and newlines.
+         * @param {string} markdownText - The text containing basic markdown.
+         * @returns {string} HTML string.
+         */
+        function convertMarkdownToHtml(markdownText) {
+            let htmlText = markdownText;
+
+            htmlText = htmlText.replace(/\n/g, '<br>');
+            htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            htmlText = htmlText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            htmlText = htmlText.replace(/`(.*?)`/g, '<code class="inline-code">$1</code>');
+            htmlText = htmlText.replace(/```(.*?)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+
+            return htmlText;
+        }
+
+        /**
+         * Adds a message to the chat display.
+         * @param {string} text - The message text.
+         * @param {string} sender - 'user' or 'assistant'.
+         * @param {string} [imageUrl] - Optional URL for an image to display.
+         */
+        function addMessage(text, sender, imageUrl = null) {
+            if (chatMessages.children.length === 1 && chatMessages.children[0].id === 'central-question' && sender === 'user') {
+                centralQuestion.style.display = 'none';
+            }
+
+            const now = new Date();
+            const timestampText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            
+            let avatarContent = sender === 'user' ? 'U' : 'AI';
+
+            let messageContentHtml = `<div class="bubble">${sender === 'user' ? text : convertMarkdownToHtml(text)}`;
+            if (imageUrl) {
+                messageContentHtml += `<img src="${imageUrl}" alt="Attached image" class="message-image">`;
+            }
+            messageContentHtml += `</div>`;
+
+            messageDiv.innerHTML = `
+                <div class="avatar">${avatarContent}</div>
+                <div class="message-content">
+                    ${messageContentHtml}
+                    <div class="message-info">
+                        <span class="timestamp">${appSettings.messageTimestamp ? timestampText : ''}</span>
+                        <div class="message-actions">
+                            <button class="action-btn copy-btn"><i class="fas fa-copy"></i></button>
+                            ${sender === 'assistant' ? `
+                                <button class="action-btn like-btn"><i class="fas fa-thumbs-up"></i></button>
+                                <button class="action-btn dislike-btn"><i class="fas fa-thumbs-down"></i></button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+
+            if (appSettings.autoScroll) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            if (sender === 'assistant' && appSettings.textToSpeech && text) {
+                speakText(text);
+            }
+        }
+
+        /**
+         * Disables or enables all interactive elements during an API call.
+         * @param {boolean} disable - True to disable, false to enable.
+         */
+        function setInteractiveElementsDisabled(disable) {
+            sendBtn.disabled = disable;
+            userInput.disabled = disable;
+            mainSettingsButton.disabled = disable;
+            loadingIndicator.style.display = disable ? 'flex' : 'none';
+
+            if (settingsModal.style.display === 'flex') {
+                settingsPanel.querySelectorAll('button, input, select').forEach(element => {
+                    element.disabled = disable;
+                });
+            }
+            uploadBtn.disabled = disable; 
+            voiceInputButton.disabled = disable;
+            clearInputButton.disabled = disable;
+        }
+
+        /**
+         * Sends a prompt (text and/or image) to the Gemini API and handles the response.
+         * Implements exponential backoff for retries.
+         * @param {Array} contentsArray - The full array of content parts (user and model turns) to send to the API.
+         * @param {string} errorContextMessage - Message to display if an error occurs.
+         * @param {number} retries - Current retry count.
+         * @returns {Promise<string|null>} The bot's response text, or null if an error.
+         */
+        async function callGeminiAPI(contentsArray, errorContextMessage, retries = 0) {
+            setInteractiveElementsDisabled(true);
+            console.log("Calling Gemini API with contents:", contentsArray, `(Retry: ${retries})`);
+
+            const maxRetries = 3;
+            const baseDelay = 1000;
+
+            try {
+                const payload = { contents: contentsArray };
+                const apiKey = appSettings.currentApiKey;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("API response error:", errorData);
+
+                    if ((response.status === 429 || response.status >= 500) && retries < maxRetries) {
+                        const delay = baseDelay * Math.pow(2, retries) + Math.random() * 500;
+                        console.warn(`Retrying API call in ${delay / 1000}s... (Retry ${retries + 1}/${maxRetries})`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return callGeminiAPI(contentsArray, errorContextMessage, retries + 1);
+                    }
+
+                    throw new Error(`API error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                console.log("Gemini API response:", result);
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Unexpected API response structure:", result);
+                    addMessage(`Oops! ${errorContextMessage} Please try again.`, 'assistant');
+                    return null;
+                }
+
+            } catch (error) {
+                console.error("Error communicating with Gemini API:", error);
+                addMessage(`Sorry, I'm having trouble with that right now. ${errorContextMessage}`, 'assistant');
+                return null;
+            } finally {
+                setInteractiveElementsDisabled(false);
+                userInput.focus();
+            }
+        }
+
+        /**
+         * Generates an image using the Imagen API.
+         * @param {string} promptText - The text prompt for image generation.
+         * @returns {Promise<string|null>} The base64 image URL, or null if an error.
+         */
+        async function generateImage(promptText) {
+            setInteractiveElementsDisabled(true);
+            addMessage(`Generating image for: "${promptText}"...`, 'assistant');
+            console.log("Calling Imagen API with prompt:", promptText);
+
+            try {
+                const payload = { instances: { prompt: promptText }, parameters: { "sampleCount": 1 } };
+                const apiKey = appSettings.currentApiKey;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3-0-generate-002:predict?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Imagen API response error:", errorData);
+                    throw new Error(`Imagen API error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                console.log("Imagen API response:", result);
+
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    addMessage(`Here is your image based on: "${promptText}"`, 'assistant', imageUrl);
+                    return imageUrl;
+                } else {
+                    console.error("Unexpected Imagen API response structure:", result);
+                    addMessage(`Oops! I couldn't generate an image for that prompt. Please try again with a different description.`, 'assistant');
+                    return null;
+                }
+
+            } catch (error) {
+                console.error("Error generating image:", error);
+                addMessage(`Sorry, I'm having trouble generating images right now. Please try again later.`, 'assistant');
+                return null;
+            } finally {
+                setInteractiveElementsDisabled(false);
+                userInput.focus();
+            }
+        }
+
+        /**
+         * Handles image file selection. Stores image data in pending variables.
+         * @param {Event} event - The change event from the file input.
+         */
+        function handleImageUpload(event) { 
+            const file = event.target.files[0];
+            if (!file) {
+                showToast("No image selected.", 'warning');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                addMessage("Please upload a valid image file (e.g., PNG, JPG, GIF).", 'assistant');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageUrl = e.target.result;
+                pendingImageBase64 = imageUrl.split(',')[1];
+                pendingImageMimeType = file.type;
+                showToast("Image attached! Type your message and press Send.", 'info');
+                userInput.focus();
+            };
+            reader.onerror = () => {
+                addMessage("Error reading image file.", 'assistant');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Handles sending messages, including text, images, and special modes.
+         */
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+            let userParts = [];
+
+            if (isImageCreationMode) {
+                if (userMessage !== '') {
+                    addMessage(userMessage, 'user');
+                    userInput.value = '';
+                    userInput.style.height = 'auto';
+                    clearInputButton.style.display = 'none';
+                    await generateImage(userMessage);
+                    isImageCreationMode = false;
+                    userInput.placeholder = "Type your message...";
+                } else {
+                    addMessage("Please provide a text prompt for image generation.", 'assistant');
+                }
+                return;
+            } else if (isCalculatorMode) {
+                addMessage(userMessage, 'user');
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                clearInputButton.style.display = 'none';
+                const result = evaluateExpression(userMessage);
+                addMessage(`🔢 **Calculator Result:** ${result}`, 'assistant');
+                isCalculatorMode = false;
+                userInput.placeholder = "Type your message...";
+                return;
+            } else if (isFactCheckerMode) {
+                addMessage(userMessage, 'user');
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                clearInputButton.style.display = 'none';
+                const factCheckResponse = await callGeminiAPI([{ role: 'user', parts: [{ text: `Is the following statement true or false? "${userMessage}". Provide a concise answer.` }] }], "I couldn't check that fact.");
+                addMessage(`🔎 **Fact Check:** ${factCheckResponse || "I can't verify that fact at the moment, but I'm learning!"}`, 'assistant');
+                isFactCheckerMode = false;
+                userInput.placeholder = "Type your message...";
+                return;
+            } else if (isCodeExplainerMode) {
+                addMessage(userMessage, 'user');
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                clearInputButton.style.display = 'none';
+                const codeExplanation = await callGeminiAPI([{ role: 'user', parts: [{ text: `Explain the following code snippet: \n\`\`\`\n${userMessage}\n\`\`\`\nProvide a clear and concise explanation.` }] }], "I couldn't explain that code.");
+                addMessage(`💻 **Code Explanation:**\n\n${codeExplanation || "I can't explain that code snippet right now."}`, 'assistant');
+                isCodeExplainerMode = false;
+                userInput.placeholder = "Type your message...";
+                return;
+            }
+
+            const isImagePending = pendingImageBase64 && pendingImageMimeType; 
+            const imageUrlToDisplay = isImagePending ? `data:${pendingImageMimeType};base64,${pendingImageBase64}` : null; 
+            addMessage(userMessage, 'user', imageUrlToDisplay);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            clearInputButton.style.display = 'none';
+
+            if (isImagePending) { 
+                userParts.push({
+                    inlineData: {
+                        mimeType: pendingImageMimeType,
+                        data: pendingImageBase64
+                    }
+                });
+                pendingImageBase64 = null;
+                pendingImageMimeType = null;
+            }
+
+            if (userMessage !== '') {
+                userParts.push({ text: userMessage });
+            }
+
+            if (userParts.length === 0) {
+                return;
+            }
+
+            if (userParts.length === 1 && userParts[0].text) {
+                const lowerCaseMessage = userMessage.toLowerCase();
+                let botResponse = null;
+
+                if (lowerCaseMessage.includes("what is your name?") || lowerCaseMessage.includes("who are you?") || lowerCaseMessage.includes("who made you?") || lowerCaseMessage.includes("who is your creator?") || lowerCaseMessage.includes("who is your founder?") || lowerCaseMessage.includes("who developed you?") || lowerCaseMessage.includes("tell me about your origins") || lowerCaseMessage.includes("how were you built?")) {
+                    botResponse = `My name is Ashok AI, and I was created by ${ashokInfo.name}. I was developed in ${ashokInfo.creation_date}.`;
+                } else if (lowerCaseMessage.includes("founder address?") || lowerCaseMessage.includes("where does the founder live?") || lowerCaseMessage.includes("what is the founder's address?")) {
+                    botResponse = `My creator, Ashok Kumar Ray, lives in ${ashokInfo.address}.`;
+                } else if (lowerCaseMessage.includes("founder studies college?") || lowerCaseMessage.includes("what college did the founder study at?") || lowerCaseMessage.includes("which college did the founder attend?")) {
+                    botResponse = `My creator, Ashok Kumar Ray, studies at ${ashokInfo.college}. You can find more information here: <a href="${ashokInfo.college_link}" target="_blank" class="text-blue-600 hover:underline">${ashokInfo.college_link}</a>`;
+                } else if (lowerCaseMessage.includes("who chose a computer science stream?") || lowerCaseMessage.includes("what stream did the founder study?")) {
+                    botResponse = `My creator, Ashok Kumar Ray, chose the ${ashokInfo.stream} stream.`;
+                } else if (lowerCaseMessage.includes("who is ashok kumar ray?")) {
+                    botResponse = `Ashok Kumar Ray is my creator. He lives in ${ashokInfo.address}, studies ${ashokInfo.stream} at ${ashokInfo.college} (<a href="${ashokInfo.college_link}" target="_blank" class="text-blue-600 hover:underline">${ashokInfo.college_link}</a>), and I was developed by him in ${ashokInfo.creation_date}.`;
+                } else if (lowerCaseMessage.includes("when were you made?") || lowerCaseMessage.includes("when were you created?")) {
+                    botResponse = `I was created in ${ashokInfo.creation_date}.`;
+                }
+
+                if (botResponse) {
+                    addMessage(botResponse, 'assistant');
+                    return;
+                }
+            }
+
+            const botResponse = await callGeminiAPI([...chatHistory, { role: 'user', parts: userParts }], "I didn't get a clear response.");
+            if (botResponse) {
+                addMessage(botResponse, 'assistant');
+                chatHistory.push({ role: 'user', parts: userParts });
+                chatHistory.push({ role: 'model', parts: [{ text: botResponse }] });
+            }
+        }
+
+        /**
+         * Evaluates a mathematical expression.
+         * @param {string} expression - The mathematical expression as a string.
+         * @returns {string} The result of the expression or an error message.
+         */
+        function evaluateExpression(expression) {
+            try {
+                const result = eval(expression);
+                if (isNaN(result) || !isFinite(result)) {
+                    return "Invalid expression. Please enter a valid mathematical operation (e.g., 5 + 3 * 2).";
+                }
+                return result.toString();
+            } catch (e) {
+                return "Error: Could not evaluate the expression. Please check your input.";
+            }
+        }
+
+        /**
+         * Summarizes the current chat conversation using the Gemini API.
+         */
+        async function summarizeChat() {
+            const llmChatHistory = chatHistory.filter(entry => entry.role === 'user' || entry.role === 'model');
+
+            if (llmChatHistory.length === 0) {
+                addMessage("There's no conversation to summarize yet. Start chatting!", 'assistant');
+                return;
+            }
+
+            const summaryPrompt = "Please provide a concise summary of the following conversation:";
+            const summaryChatHistory = [...llmChatHistory, { role: 'user', parts: [{ text: summaryPrompt }] }];
+
+            const summary = await callGeminiAPI(summaryChatHistory, "I couldn't summarize the chat.");
+            if (summary) {
+                addMessage(`✨ **Chat Summary:**\n\n${summary}`, 'assistant');
+            }
+        }
+
+        /**
+         * Asks the Gemini API to elaborate on the last bot message.
+         */
+        async function elaborateLastMessage() {
+            const lastBotMessage = chatHistory.slice().reverse().find(msg => msg.role === 'model');
+
+            if (!lastBotMessage) {
+                addMessage("There's no previous bot message from the AI to elaborate on.", 'assistant');
+                return;
+            }
+
+            const elaborationPrompt = `Please elaborate on the following message: "${lastBotMessage.parts[0].text}"`;
+            const elaborationChatHistory = [...chatHistory, { role: 'user', parts: [{ text: elaborationPrompt }] }];
+
+            const elaboration = await callGeminiAPI(elaborationChatHistory, "I couldn't elaborate on the last message.");
+            if (elaboration) {
+                addMessage(`✨ **Elaboration:**\n\n${elaboration}`, 'assistant');
+            }
+        }
+
+        /**
+         * Suggests new topics or follow-up questions based on the current conversation.
+         */
+        async function suggestTopics() {
+            let prompt;
+            const llmChatHistory = chatHistory.filter(entry => entry.role === 'user' || entry.role === 'model');
+
+            if (llmChatHistory.length > 0) {
+                prompt = "Based on the following conversation, suggest 3-5 relevant follow-up questions or new topics we could discuss. Format them as a bulleted list.";
+                const suggestTopicsChatHistory = [...llmChatHistory, { role: 'user', parts: [{ text: prompt }] }];
+                const suggestions = await callGeminiAPI(suggestTopicsChatHistory, "I couldn't suggest topics at this moment.");
+                if (suggestions) {
+                    addMessage(`✨ **Suggested Topics:**\n\n${suggestions}`, 'assistant');
+                }
+            } else {
+                prompt = "You are a helpful AI chatbot. Suggest 3-5 general topics or questions a user might ask you to get started. Format them as a bulleted list.";
+                const generalTopicsChatHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+                const suggestions = await callGeminiAPI(generalTopicsChatHistory, "I couldn't suggest topics at this moment.");
+                if (suggestions) {
+                    addMessage(`✨ **Here are some topics you might want to ask about:**\n\n${suggestions}`, 'assistant');
+                }
+            }
+        }
+
+        /**
+         * Summarizes arbitrary text provided by the user.
+         */
+        async function summarizeArbitraryText() {
+            const textToSummarize = prompt("Please enter the text you'd like to summarize:");
+            if (!textToSummarize) {
+                showToast("Text summarization cancelled.", 'warning');
+                return;
+            }
+
+            const summarizePrompt = `Please provide a concise summary of the following text:\n\n"${textToSummarize}"`;
+            const summaryChatHistory = [{ role: 'user', parts: [{ text: summarizePrompt }] }];
+
+            const summary = await callGeminiAPI(summaryChatHistory, "I couldn't summarize the provided text.");
+            if (summary) {
+                addMessage(`✨ **Summary of your text:**\n\n${summary}`, 'assistant');
+            }
+        }
+
+        /**
+         * Generates a creative writing prompt.
+         */
+        async function generateCreativeWritingPrompt() {
+            const promptRequest = "Generate a unique and inspiring creative writing prompt. Make it open-ended and encourage imaginative storytelling.";
+            const promptChatHistory = [{ role: 'user', parts: [{ text: promptRequest }] }];
+
+            const creativePrompt = await callGeminiAPI(promptChatHistory, "I couldn't generate a writing prompt.");
+            if (creativePrompt) {
+                addMessage(`✨ **Here's a creative writing prompt for you:**\n\n${creativePrompt}`, 'assistant');
+            }
+        }
+
+        /**
+         * Generates a recipe based on user-provided ingredients.
+         */
+        async function generateRecipe() {
+            const ingredients = prompt("Please list the ingredients you have, separated by commas (e.g., 'chicken, rice, broccoli'):");
+            if (!ingredients) {
+                showToast("Recipe generation cancelled.", 'warning');
+                return;
+            }
+
+            const recipePrompt = `Generate a recipe using the following ingredients: ${ingredients}. Please provide the recipe name, a list of ingredients with quantities, and step-by-step instructions.`;
+            const recipeChatHistory = [{ role: 'user', parts: [{ text: recipePrompt }] }];
+
+            const recipe = await callGeminiAPI(recipeChatHistory, "I couldn't generate a recipe with those ingredients.");
+            if (recipe) {
+                addMessage(`✨ **Here's a recipe for you:**\n\n${recipe}`, 'assistant');
+            }
+        }
+
+        /**
+         * Performs sentiment analysis on user-provided text.
+         */
+        async function performSentimentAnalysis() {
+            const textToAnalyze = prompt("Please enter the text you'd like to analyze for sentiment:");
+            if (!textToAnalyze) {
+                showToast("Sentiment analysis cancelled.", 'warning');
+                return;
+            }
+
+            const sentimentPrompt = `Analyze the sentiment of the following text: "${textToAnalyze}". Respond with 'Positive', 'Negative', or 'Neutral' and a brief explanation.`;
+            const sentimentChatHistory = [{ role: 'user', parts: [{ text: sentimentPrompt }] }];
+
+            const sentimentResult = await callGeminiAPI(sentimentChatHistory, "I couldn't perform sentiment analysis.");
+            if (sentimentResult) {
+                addMessage(`✨ **Sentiment Analysis:**\n\n${sentimentResult}`, 'assistant');
+            }
+        }
+
+        /**
+         * Translates user-provided text into a specified language.
+         */
+        async function performTranslation() {
+            const textToTranslate = prompt("Please enter the text you'd like to translate:");
+            if (!textToTranslate) {
+                showToast("Translation cancelled.", 'warning');
+                return;
+            }
+            const targetLanguage = prompt("Enter the target language (e.g., 'French', 'Spanish', 'Japanese'):");
+            if (!targetLanguage) {
+                showToast("Translation cancelled. Target language not specified.", 'warning');
+                return;
+            }
+
+            const translationPrompt = `Translate the following text into ${targetLanguage}: "${textToTranslate}".`;
+            const translationChatHistory = [{ role: 'user', parts: [{ text: translationPrompt }] }];
+
+            const translatedText = await callGeminiAPI(translationChatHistory, "I couldn't translate the text.");
+            if (translatedText) {
+                addMessage(`✨ **Translation (${targetLanguage}):**\n\n${translatedText}`, 'assistant');
+            }
+        }
+
+        /**
+         * Corrects grammar and spelling in user-provided text.
+         */
+        async function performGrammarCorrection() {
+            const textToCorrect = prompt("Please enter the text you'd like to correct for grammar and spelling:");
+            if (!textToCorrect) {
+                showToast("Grammar correction cancelled.", 'warning');
+                return;
+            }
+
+            const correctionPrompt = `Correct any grammar or spelling errors in the following text. Provide only the corrected text, without any additional commentary: "${textToCorrect}".`;
+            const correctionChatHistory = [{ role: 'user', parts: [{ text: correctionPrompt }] }];
+
+            const correctedText = await callGeminiAPI(correctionChatHistory, "I couldn't correct the text.");
+            if (correctedText) {
+                addMessage(`✨ **Grammar & Spelling Correction:**\n\n${correctedText}`, 'assistant');
+            }
+        }
+
+
+        /**
+         * Handles exporting chat history.
+         */
+        function exportChatHistory() {
+            if (chatHistory.length === 0) {
+                addMessage("There's no chat history to export.", 'assistant');
+                return;
+            }
+            const chatText = chatHistory.map(entry => {
+                const role = entry.role === 'user' ? 'You' : 'Ashok AI';
+                const textParts = entry.parts.map(part => part.text || (part.inlineData ? `[Image: ${part.inlineData.mimeType}]` : '')).join('');
+                return `${role}: ${textParts}`;
+            }).join('\n');
+
+            const blob = new Blob([chatText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ashok_ai_chat_history.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Chat history exported successfully!", 'success');
+        }
+
+        /**
+         * Handles importing chat history.
+         */
+        function importChatHistory() {
+            importChatHistoryInput.click();
+        }
+
+        /**
+         * Reads the imported file and populates chat history.
+         * @param {Event} event - The change event from the file input.
+         */
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                showToast("No file selected for import.", 'warning');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const importedText = e.target.result;
+                const lines = importedText.split('\n');
+                let newChatHistory = [];
+                chatMessages.innerHTML = '';
+
+                if (centralQuestion.style.display === 'none') {
+                    centralQuestion.style.display = 'block';
+                }
+
+                lines.forEach(line => {
+                    if (line.startsWith('You: ')) {
+                        const text = line.substring(5);
+                        addMessage(text, 'user');
+                        newChatHistory.push({ role: 'user', parts: [{ text: text }] });
+                    } else if (line.startsWith('Ashok AI: ')) {
+                        const text = line.substring(10);
+                        addMessage(text, 'assistant');
+                        newChatHistory.push({ role: 'model', parts: [{ text: text }] });
+                    }
+                });
+                chatHistory = newChatHistory;
+                showToast("Chat history imported successfully!", 'success');
+                if (chatHistory.length > 0) {
+                    centralQuestion.style.display = 'none';
+                }
+            };
+            reader.onerror = () => {
+                addMessage("Error reading file.", 'assistant');
+                showToast("Error importing chat history.", 'error');
+            };
+            reader.readAsText(file);
+        }
+
+        /**
+         * Resets all chatbot settings to their initial default values.
+         */
+        function resetAllSettings() {
+            appSettings = {
+                profanityFilter: false,
+                dataPrivacyMode: false,
+                unsafeContentWarning: true,
+                chatbotPersona: 'default',
+                responseLength: 'standard',
+                responseTone: 'neutral',
+                soundEffects: false,
+                desktopNotifications: false,
+                textToSpeech: false,
+                fontSize: 'medium',
+                highContrastMode: false,
+                mobileLayoutPreference: false,
+                mobileLayoutSize: 'medium',
+                autoScroll: true,
+                messageTimestamp: false,
+                currentApiKey: "AIzaSyCWIAQYeFPhWzfN4jMY4O07CkX3ML5Gj7M"
+            };
+            syncSettingsToUI();
+            if (isDarkMode) {
+                toggleDarkMode();
+            }
+            applyMobileOptimizationStyles();
+            saveSettings();
+            showToast("All settings reset to default!", 'success');
+            closeSettings();
+        }
+
+        /**
+         * Clears all messages from the chat display and resets chat history.
+         */
+        function clearChat() {
+            chatMessages.innerHTML = '';
+            const initialBotMessage = document.createElement('div');
+            initialBotMessage.classList.add('message', 'assistant');
+            initialBotMessage.id = 'central-question';
+            initialBotMessage.innerHTML = `
+                <div class="avatar">AI</div>
+                <div class="message-content">
+                    <div class="bubble">
+                        <p>Hello! I'm Ashok AI, your intelligent assistant. How can I help you today?</p>
+                    </div>
+                    <div class="message-info">
+                        <span class="timestamp"></span>
+                        <div class="message-actions">
+                            <button class="action-btn copy-btn"><i class="fas fa-copy"></i></button>
+                            <button class="action-btn like-btn"><i class="fas fa-thumbs-up"></i></button>
+                            <button class="action-btn dislike-btn"><i class="fas fa-thumbs-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(initialBotMessage);
+
+            chatHistory = [];
+            centralQuestion.style.display = 'block';
+            showToast("Chat history cleared!", 'success');
+        }
+
+        /**
+         * Toggles dark mode on and off by adding/removing 'dark-mode' class to body.
+         */
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const icon = darkModeToggle.querySelector('i');
+            if (isDarkMode) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                showToast('Dark mode enabled', 'success');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                showToast('Light mode enabled', 'success');
+            }
+            appSettings.darkmode = isDarkMode;
+            saveSettings();
+        }
+
+        /**
+         * Applies or removes the 'mobile-optimized-layout' class and size-specific classes
+         * to the chat container based on the 'mobileLayoutPreference' and 'mobileLayoutSize' settings.
+         */
+        function applyMobileOptimizationStyles() {
+            chatContainer.classList.remove('mobile-layout-small', 'mobile-layout-medium', 'mobile-layout-large');
+
+            if (appSettings.mobileLayoutPreference) {
+                chatContainer.classList.add('mobile-optimized-layout');
+                chatContainer.classList.add(`mobile-layout-${appSettings.mobileLayoutSize}`);
+            } else {
+                chatContainer.classList.remove('mobile-optimized-layout');
+            }
+        }
+
+        /**
+         * Synchronizes UI elements with current appSettings.
+         * Called on page load and after settings reset.
+         */
+        function syncSettingsToUI() {
+            profanityFilterToggleSetting.checked = appSettings.profanityFilter;
+            dataPrivacyModeToggleSetting.checked = appSettings.dataPrivacyMode;
+            unsafeContentWarningToggleSetting.checked = appSettings.unsafeContentWarning;
+            chatbotPersonaSetting.value = appSettings.chatbotPersona;
+            responseLengthSetting.value = appSettings.responseLength;
+            responseToneSetting.value = appSettings.responseTone;
+            soundEffectsToggle.checked = appSettings.soundEffects;
+            desktopNotificationsToggle.checked = appSettings.desktopNotifications;
+            textToSpeechToggle.checked = appSettings.textToSpeech;
+            fontSizeSetting.value = appSettings.fontSize;
+            highContrastModeToggle.checked = appSettings.highContrastMode;
+            mobileLayoutPreferenceToggle.checked = appSettings.mobileLayoutPreference;
+            mobileLayoutSizeSetting.value = appSettings.mobileLayoutSize;
+            autoScrollToggle.checked = appSettings.autoScroll;
+            messageTimestampToggle.checked = appSettings.messageTimestamp;
+
+            document.querySelectorAll('.message .bubble p').forEach(p => {
+                if (appSettings.fontSize === 'small') {
+                    p.style.fontSize = '0.85em';
+                } else if (appSettings.fontSize === 'large') {
+                    p.style.fontSize = '1.15em';
+                } else {
+                    p.style.fontSize = '1em';
+                }
+            });
+
+            document.body.classList.toggle('high-contrast-mode', appSettings.highContrastMode);
+            applyMobileOptimizationStyles();
+
+            if (appSettings.darkmode && !document.body.classList.contains('dark-mode')) {
+                toggleDarkMode();
+            } else if (!appSettings.darkmode && document.body.classList.contains('dark-mode')) {
+                toggleDarkMode();
+            }
+        }
+
+        /**
+         * Opens the settings modal.
+         */
+        function openSettings() {
+            settingsModal.style.display = 'flex';
+            syncSettingsToUI();
+            setInteractiveElementsDisabled(false);
+        }
+
+        /**
+         * Closes the settings modal.
+         */
+        function closeSettings() {
+            settingsModal.style.display = 'none';
+        }
+
+        /**
+         * Toggles speech recognition on/off.
+         */
+        function toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window)) {
+                addMessage("Your browser does not support Web Speech API. Please use Google Chrome.", 'assistant');
+                showToast("Browser does not support voice input.", 'error');
+                return;
+            }
+
+            if (!recognition) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    voiceInputButton.classList.add('listening');
+                    voiceInputButton.querySelector('i').classList.remove('fa-microphone');
+                    voiceInputButton.querySelector('i').classList.add('fa-microphone-alt-slash');
+                    addMessage("Listening... Say something!", 'assistant');
+                    showToast("Voice input started. Please speak now.", 'info');
+                    userInput.placeholder = "Listening...";
+                    userInput.value = '';
+                    userInput.style.height = 'auto';
+                    clearInputButton.style.display = 'none';
+                };
+
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    userInput.value = finalTranscript || interimTranscript;
+                    clearInputButton.style.display = userInput.value.length > 0 ? 'flex' : 'none';
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    addMessage(`Voice input error: ${event.error}. Please try again.`, 'assistant');
+                    showToast(`Voice input error: ${event.error}`, 'error');
+                    isListening = false;
+                    voiceInputButton.classList.remove('listening');
+                    voiceInputButton.querySelector('i').classList.remove('fa-microphone-alt-slash');
+                    voiceInputButton.querySelector('i').classList.add('fa-microphone');
+                    userInput.placeholder = "Type your message...";
+                    clearInputButton.style.display = userInput.value.length > 0 ? 'flex' : 'none';
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    voiceInputButton.classList.remove('listening');
+                    voiceInputButton.querySelector('i').classList.remove('fa-microphone-alt-slash');
+                    voiceInputButton.querySelector('i').classList.add('fa-microphone');
+                    userInput.placeholder = "Type your message...";
+                    if (userInput.value.trim() !== '') {
+                        showToast("Voice input ended. Sending message...", 'info');
+                        sendMessage();
+                    } else {
+                        addMessage("Voice input ended. No speech detected or recognized.", 'assistant');
+                        showToast("Voice input ended. No speech detected.", 'warning');
+                    }
+                    clearInputButton.style.display = userInput.value.length > 0 ? 'flex' : 'none';
+                };
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        /**
+         * Converts text to speech using the Web Speech API.
+         * @param {string} text - The text to speak.
+         */
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (appSettings.responseTone === 'cheerful') {
+                    utterance.pitch = 1.2;
+                    utterance.rate = 1.1;
+                } else if (appSettings.responseTone === 'serious') {
+                    utterance.pitch = 0.8;
+                    utterance.rate = 0.9;
+                }
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn("Text-to-Speech not supported in this browser.");
+            }
+        }
+
+        // Event Listeners
+        sendBtn.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+        
+        uploadBtn.addEventListener('click', () => imageUploadInput.click()); 
+        imageUploadInput.addEventListener('change', handleImageUpload); 
+
+        voiceInputButton.addEventListener('click', toggleVoiceInput);
+        
+        clearInputButton.addEventListener('click', () => {
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            clearInputButton.style.display = 'none';
+            userInput.focus();
+        });
+
+        // Settings Modal Event Listeners
+        mainSettingsButton.addEventListener('click', openSettings);
+        closeSettingsButton.addEventListener('click', closeSettings);
+        clearChatSettingButton.addEventListener('click', clearChat);
+        summarizeChatSettingButton.addEventListener('click', summarizeChat);
+        elaborateSettingButton.addEventListener('click', elaborateLastMessage);
+        suggestTopicsSettingButton.addEventListener('click', suggestTopics);
+        createImageSettingButton.addEventListener('click', () => {
+            isImageCreationMode = true;
+            isCalculatorMode = false;
+            isFactCheckerMode = false;
+            isCodeExplainerMode = false;
+            userInput.placeholder = "Enter your image prompt...";
+            addMessage("Image creation mode activated. Your next message will be used to generate an image.", 'assistant');
+            closeSettings();
+            userInput.focus();
+        });
+
+        // LLM-powered feature buttons
+        summarizeTextSettingButton.addEventListener('click', summarizeArbitraryText);
+        creativeWritingPromptSettingButton.addEventListener('click', generateCreativeWritingPrompt);
+        recipeGeneratorSettingButton.addEventListener('click', generateRecipe);
+        sentimentAnalysisSettingButton.addEventListener('click', performSentimentAnalysis);
+        translateTextSettingButton.addEventListener('click', performTranslation);
+        grammarCheckSettingButton.addEventListener('click', performGrammarCorrection);
+        calculatorToolSettingButton.addEventListener('click', () => {
+            isCalculatorMode = true;
+            isImageCreationMode = false;
+            isFactCheckerMode = false;
+            isCodeExplainerMode = false;
+            userInput.placeholder = "Enter a math expression (e.g., 5 + 3 * 2)...";
+            addMessage("Calculator mode activated. Enter a mathematical expression.", 'assistant');
+            closeSettings();
+            userInput.focus();
+        });
+        factCheckerToolSettingButton.addEventListener('click', () => {
+            isFactCheckerMode = true;
+            isCalculatorMode = false;
+            isImageCreationMode = false;
+            isCodeExplainerMode = false;
+            userInput.placeholder = "Enter a statement to fact-check...";
+            addMessage("Fact Checker mode activated. Enter a statement you want me to verify.", 'assistant');
+            closeSettings();
+            userInput.focus();
+        });
+        codeExplainerToolSettingButton.addEventListener('click', () => {
+            isCodeExplainerMode = true;
+            isCalculatorMode = false;
+            isImageCreationMode = false;
+            isFactCheckerMode = false;
+            userInput.placeholder = "Paste your code snippet here...";
+            addMessage("Code Explainer mode activated. Paste a code snippet for explanation.", 'assistant');
+            closeSettings();
+            userInput.focus();
+        });
+
+        // Settings change listeners
+        chatbotPersonaSetting.addEventListener('change', (event) => {
+            appSettings.chatbotPersona = event.target.value;
+            addMessage(`Chatbot persona set to: **${appSettings.chatbotPersona.charAt(0).toUpperCase() + appSettings.chatbotPersona.slice(1)}**.`, 'assistant');
+            saveSettings();
+        });
+        responseLengthSetting.addEventListener('change', (event) => {
+            appSettings.responseLength = event.target.value;
+            addMessage(`Response length set to: **${appSettings.responseLength.charAt(0).toUpperCase() + appSettings.responseLength.slice(1)}**.`, 'assistant');
+            saveSettings();
+        });
+        responseToneSetting.addEventListener('change', (event) => {
+            appSettings.responseTone = event.target.value;
+            addMessage(`Response tone set to: **${appSettings.responseTone.charAt(0).toUpperCase() + appSettings.responseTone.slice(1)}**.`, 'assistant');
+            saveSettings();
+        });
+        soundEffectsToggle.addEventListener('change', (event) => {
+            appSettings.soundEffects = event.target.checked;
+            addMessage(`Sound effects ${appSettings.soundEffects ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        desktopNotificationsToggle.addEventListener('change', (event) => {
+            appSettings.desktopNotifications = event.target.checked;
+            addMessage(`Desktop notifications ${appSettings.desktopNotifications ? 'enabled' : 'disabled'}.`, 'assistant');
+            if (appSettings.desktopNotifications && Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        addMessage("Desktop notification permission granted!", 'assistant');
+                    } else {
+                        addMessage("Desktop notification permission denied. Please enable it in your browser settings.", 'assistant');
+                        desktopNotificationsToggle.checked = false;
+                        appSettings.desktopNotifications = false;
+                    }
+                    saveSettings();
+                });
+            } else {
+                saveSettings();
+            }
+        });
+        textToSpeechToggle.addEventListener('change', (event) => {
+            appSettings.textToSpeech = event.target.checked;
+            addMessage(`Text-to-Speech responses ${appSettings.textToSpeech ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        fontSizeSetting.addEventListener('change', (event) => {
+            appSettings.fontSize = event.target.value;
+            syncSettingsToUI();
+            addMessage(`Font size set to: **${appSettings.fontSize.charAt(0).toUpperCase() + appSettings.fontSize.slice(1)}**.`, 'assistant');
+            saveSettings();
+        });
+        highContrastModeToggle.addEventListener('change', (event) => {
+            appSettings.highContrastMode = event.target.checked;
+            document.body.classList.toggle('high-contrast-mode', appSettings.highContrastMode);
+            addMessage(`High contrast mode ${appSettings.highContrastMode ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        mobileLayoutPreferenceToggle.addEventListener('change', (event) => {
+            appSettings.mobileLayoutPreference = event.target.checked;
+            applyMobileOptimizationStyles();
+            addMessage(`Mobile layout preference ${appSettings.mobileLayoutPreference ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        mobileLayoutSizeSetting.addEventListener('change', (event) => {
+            appSettings.mobileLayoutSize = event.target.value;
+            applyMobileOptimizationStyles();
+            addMessage(`Mobile layout size set to: **${appSettings.mobileLayoutSize.charAt(0).toUpperCase() + appSettings.mobileLayoutSize.slice(1)}**.`, 'assistant');
+            saveSettings();
+        });
+        autoScrollToggle.addEventListener('change', (event) => {
+            appSettings.autoScroll = event.target.checked;
+            addMessage(`Auto-scroll ${appSettings.autoScroll ? 'enabled' : 'disabled'}.`, 'assistant');
+            if (appSettings.autoScroll) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            saveSettings();
+        });
+        messageTimestampToggle.addEventListener('change', (event) => {
+            appSettings.messageTimestamp = event.target.checked;
+            addMessage(`Message timestamps ${appSettings.messageTimestamp ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        exportChatHistorySetting.addEventListener('click', exportChatHistory);
+        importChatHistorySetting.addEventListener('click', importChatHistory);
+        importChatHistoryInput.addEventListener('change', handleFileImport);
+        resetAllSettingsButton.addEventListener('click', resetAllSettings);
+        profanityFilterToggleSetting.addEventListener('change', (event) => {
+            appSettings.profanityFilter = event.target.checked;
+            addMessage(`Profanity filter ${appSettings.profanityFilter ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        dataPrivacyModeToggleSetting.addEventListener('change', (event) => {
+            appSettings.dataPrivacyMode = event.target.checked;
+            addMessage(`Data privacy mode ${appSettings.dataPrivacyMode ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+        unsafeContentWarningToggleSetting.addEventListener('change', (event) => {
+            appSettings.unsafeContentWarning = event.target.checked;
+            addMessage(`Unsafe content warning ${appSettings.unsafeContentWarning ? 'enabled' : 'disabled'}.`, 'assistant');
+            saveSettings();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.copy-btn')) {
+                const btn = e.target.closest('.copy-btn');
+                const messageContent = btn.closest('.message-content').querySelector('.bubble').textContent;
+                
+                navigator.clipboard.writeText(messageContent).then(() => {
+                    showToast('Message copied to clipboard', 'success');
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    showToast('Failed to copy message', 'error');
+                });
+            }
+        });
+
+        // Initial setup on window load
+        window.onload = () => {
+            syncSettingsToUI();
+            localStorage.setItem('ashokAiUserId', currentUserId); // Store the fixed ID
+            // userIdDisplay.textContent = `User ID: ${currentUserId}`; // Removed this line to hide the display
+            userInput.focus();
+        };
+    </script>
+</body>
+</html>
